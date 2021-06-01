@@ -52,44 +52,46 @@ def handle_clent(id):
     send(init_data_str,conn)
 
     while connected:
-        print(client_list)
-        mesg_len = conn.recv(HEADER).decode(FORMAT)
-        if mesg_len:
-            try:
-                mesg_len = int(mesg_len)
-            except:
-                print("HEADER ERROR")
-                continue
-            mesg = conn.recv(mesg_len).decode(FORMAT)
-            mesg_dict = json.loads(mesg)
-            sid = mesg_dict.get('sid')
-            rid = mesg_dict.get('rid')
-            if mesg_dict.get('option') == 'send':
-                if rid in client_list.keys():
-                    send(mesg,client_list.get(rid).get('conn'))
-            elif mesg_dict.get('option') == 'disconnect':
-                print("SERVER received the message 'disconnect'")
-                if client_list.get(sid):
-                    client_list.get(sid).get('conn').close()
-                    del client_list[sid]
-                    connected = False
+        try:
+            mesg_len = conn.recv(HEADER).decode(FORMAT)
+            if mesg_len:
+                try:
+                    mesg_len = int(mesg_len)
+                except:
+                    print("HEADER ERROR")
+                    continue
+                mesg = conn.recv(mesg_len).decode(FORMAT)
+                mesg_dict = json.loads(mesg)
+                sid = mesg_dict.get('sid')
+                rid = mesg_dict.get('rid')
+                if mesg_dict.get('option') == 'send':
+                    if rid in client_list.keys():
+                        send(mesg,client_list.get(rid).get('conn'))
+                elif mesg_dict.get('option') == 'disconnect':
+                    print("SERVER received the message 'disconnect'")
+                    if client_list.get(sid):
+                        client_list.get(sid).get('conn').close()
+                        del client_list[sid]
+                        connected = False
 
-            elif mesg_dict.get('option') == 'emit':
-                for client_id in client_list.keys():
-                    if client_id == mesg_dict.get('sid'):
-                        continue
-                    send(mesg,client_list.get(client_id).get('conn'))
-                    # print(client_id)
-            elif mesg_dict.get('option') == 'init':
-                if mesg_dict.get('data') not in client_list:
-                    client_list[mesg_dict.get('data')] = client_list.pop(id)
-                    id = mesg_dict.get('data')
-                else:
-                    init_data['option'] = 'exist'
-                    init_data_str = json.dumps(init_data)
-                    send(init_data_str,conn)
-        else:
-            connected = False
+                elif mesg_dict.get('option') == 'emit':
+                    for client_id in client_list.keys():
+                        if client_id == mesg_dict.get('sid'):
+                            continue
+                        send(mesg,client_list.get(client_id).get('conn'))
+                        # print(client_id)
+                elif mesg_dict.get('option') == 'init':
+                    if mesg_dict.get('data') not in client_list:
+                        client_list[mesg_dict.get('data')] = client_list.pop(id)
+                        id = mesg_dict.get('data')
+                    else:
+                        init_data['option'] = 'exist'
+                        init_data_str = json.dumps(init_data)
+                        send(init_data_str,conn)
+            else:
+                connected = False
+        except:
+            continue
     client_list.get(id).get('conn').close()
     del client_list[id]
     print(id)
@@ -110,12 +112,15 @@ server.listen()
 
 
 while True:
-    conn, adds = server.accept()
-    id = uuid.uuid4().hex
-    client_list[id] = {'conn':conn,'adds':adds}
-    print(client_list)
-    new_thread = threading.Thread(target=handle_clent, args=(id,))
-    new_thread.start()
+    try:
+        conn, adds = server.accept()
+        id = uuid.uuid4().hex
+        client_list[id] = {'conn':conn,'adds':adds}
+        print(client_list)
+        new_thread = threading.Thread(target=handle_clent, args=(id,))
+        new_thread.start()
+    except:
+        continue
 
 # class SocketServer:
 #     def __init__(self,):
