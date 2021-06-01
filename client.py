@@ -56,12 +56,9 @@ def listen():
                 if mesg_dict.get('option') == 'init':
                     if my_id !=mesg_dict.get('data'):
                         send_str(my_id,'init')
-                    else:
-                        my_id = mesg_dict.get('data')
 
                 elif mesg_dict.get('option') == 'exist':
-                    print("Your ID Already Exists and we used default ID")
-                    my_id = mesg_dict.get('data')
+                    print("Your ID Already Exists but we replaced it")
 
                 else:
                     print(f"{mesg_dict.get('sid')} send '{mesg_dict.get('data')}'")
@@ -70,7 +67,6 @@ def listen():
 
 listen_thread = threading.Thread(target=listen)
 listen_thread.start()
-input("Press Enter to continue")
 while True:
     key_value = keyboard.read_event()
     msg = {

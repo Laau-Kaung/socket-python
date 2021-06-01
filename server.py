@@ -86,9 +86,8 @@ def handle_clent(id):
                         client_list[mesg_dict.get('data')] = client_list.pop(id)
                         id = mesg_dict.get('data')
                     else:
-                        init_data['option'] = 'exist'
-                        init_data_str = json.dumps(init_data)
-                        send(init_data_str,conn)
+                        client_list.get(mesg_dict.get('data'))['conn'] = conn
+                        client_list.get(mesg_dict.get('data'))['adds'] = adds
             else:
                 connected = False
         except:
