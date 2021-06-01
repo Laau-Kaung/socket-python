@@ -64,6 +64,7 @@ def handle_clent(id):
                 mesg_dict = json.loads(mesg)
                 sid = mesg_dict.get('sid')
                 rid = mesg_dict.get('rid')
+                print(f"{sid} send {mesg_dict.get('data')} to {rid}")
                 if mesg_dict.get('option') == 'send':
                     if rid in client_list.keys():
                         send(mesg,client_list.get(rid).get('conn'))
